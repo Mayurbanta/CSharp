@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProjAsyncAwait"
         mc:Ignorable="d"
-        Title="MainWindow" Height="900" Width="800">
+        Title="MainWindow" Height="900" Width="1200">
 
     <Window.Resources>
         <Thickness x:Key="tbMargin">5</Thickness>
@@ -31,8 +31,13 @@
                         FontSize="15" FontWeight="Bold" Background="Beige" Click="btnAsyncProcessWithCancellationToken_Click" >
                     <TextBlock TextWrapping="Wrap">Async Process with Cancellation Token</TextBlock>
                 </Button>
+                <Button x:Name="btnAsyncProcessWithCancellationToken2ndWay"  Width="300" Height="50" 
+                        FontSize="15" FontWeight="Bold" Background="Beige" Click="btnAsyncProcessWithCancellationToken2ndWay_Click" >
+                    <TextBlock TextWrapping="Wrap">Async Process with Callback and Cancellation Token</TextBlock>
+                </Button>
+                <Button  Background="OrangeRed" x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Right" Width="60" Height="30" Margin="0 0 10 0" Click="btnCancel_Click"/>
             </StackPanel>
-            <Button x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Right" Width="60" Height="30" Margin="0 0 10 0" Click="btnCancel_Click"/>
+            
             <ProgressBar x:Name="dashboardProgress" Value="0" Height="30" Margin="10" />
             <TextBlock x:Name="TextBlockResult" Text="Result" Margin="10 10 0 0" FontSize="20" Foreground="DarkBlue" Background="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
             

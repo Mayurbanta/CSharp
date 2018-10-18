@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,9 +54,9 @@ namespace ProjAsyncAwait
 
         private string DoSomething(int sequence)
         {
-            int delay = GenerateDelay(3000, 3000);
+            int delay = GenerateDelay(3000, 4000);
             Thread.Sleep(delay);
-            return $"Method1: Sequence - {sequence.ToString()}";
+            return $"Sequence - {sequence.ToString()}";
         }
         #endregion
 
@@ -84,6 +85,21 @@ namespace ProjAsyncAwait
                 Task.Run(() => Method3()),
                 Task.Run(() => Method4()),
                  Task.Run(() => Method5()),
+                 Task.Run(() => Method1()),
+                Task.Run(() => Method2()),
+                Task.Run(() => Method3()),
+                Task.Run(() => Method4()),
+                 Task.Run(() => Method5()),
+                 Task.Run(() => Method1()),
+                Task.Run(() => Method2()),
+                Task.Run(() => Method3()),
+                Task.Run(() => Method4()),
+                 Task.Run(() => Method5()),
+                 Task.Run(() => Method1()),
+                Task.Run(() => Method2()),
+                Task.Run(() => Method3()),
+                Task.Run(() => Method4()),
+                 Task.Run(() => Method5()),
             };
 
 
@@ -96,13 +112,13 @@ namespace ProjAsyncAwait
             return lst;
         }
 
-        public async Task<List<string>> ExecuteProcessAsyncWithCallback(IProgress<ProgressReportModel> progress)
+        public async Task<ConcurrentBag<string>> ExecuteProcessAsyncWithCallback(IProgress<ProgressReportModel> progress)
         {
             List<int> InputList = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
 
 
             ProgressReportModel report = new ProgressReportModel();
-            List<string> output = new List<string>();
+            ConcurrentBag<string> output = new ConcurrentBag<string>();
 
             await Task.Run(() =>
             {
@@ -122,30 +138,7 @@ namespace ProjAsyncAwait
 
         public async Task<decimal> ExecuteProcessAsyncWithCancellation( CancellationToken cancellationToken)
         {
-
-            /*  List<int> InputList = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
-
-
-              ProgressReportModel report = new ProgressReportModel();
-              List<string> output = new List<string>();
-
-              await Task.Run(() =>
-              {
-                  Parallel.ForEach<int>(InputList, (input) =>
-                  {
-                      string result = DoSomething(input);
-                      output.Add(result);
-
-                      cancellationToken.ThrowIfCancellationRequested();
-
-                      report.MethodsCompleted = output;
-                      report.PercentageComplete = (output.Count * 100) / InputList.Count;
-                      progress.Report(report);
-                  });
-              });
-
-              return output;*/
-
+         
             decimal result = 0;
             try
             {
@@ -182,6 +175,35 @@ namespace ProjAsyncAwait
             }
 
             return result;
+        }
+
+
+        public async Task<ConcurrentBag<string>> ExecuteProcessAsyncWithCallbackAndCancellationToken(IProgress<ProgressReportModel> progress, CancellationToken cancellationToken)
+        {
+            List<int> InputList = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+
+            ProgressReportModel report = new ProgressReportModel();
+            ConcurrentBag<string> output = new ConcurrentBag<string>();
+
+            await Task.Run(() =>
+            {
+                Parallel.ForEach<int>(InputList, new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, (input, state) =>
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        state.Break();                        
+                    }
+                    string result = DoSomething(input);
+                    output.Add(result);
+
+                    report.MethodsCompleted = output;
+                    report.PercentageComplete = (output.Count * 100) / InputList.Count;
+                    progress.Report(report);
+                });
+            });
+
+            return output;
         }
 
         #endregion

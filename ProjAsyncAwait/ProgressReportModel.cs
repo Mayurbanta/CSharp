@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,6 @@ namespace ProjAsyncAwait
     public class ProgressReportModel
     {
         public int PercentageComplete { get; set; } = 0;
-        public List<string> MethodsCompleted { get; set; } = new List<string>();
+        public ConcurrentBag<string> MethodsCompleted { get; set; } = new ConcurrentBag<string>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -90,7 +91,7 @@ namespace ProjAsyncAwait
             dashboardProgress.Value = e.PercentageComplete;
             PrintResults(e.MethodsCompleted);
         }
-        private void PrintResults(List<string> results)
+        private void PrintResults(ConcurrentBag<string> results)
         {
             TextBlockResult.Text = "";
             foreach (var item in results)
@@ -117,6 +118,30 @@ namespace ProjAsyncAwait
          
 
 
+        }
+      
+        private async void btnAsyncProcessWithCancellationToken2ndWay_Click(object sender, RoutedEventArgs e)
+        {
+            Progress<ProgressReportModel> progress = new Progress<ProgressReportModel>();
+            progress.ProgressChanged += Progress_ProgressChanged; ;
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
+            ProcessEngine processEngine = new ProcessEngine();
+
+            var results = await processEngine.ExecuteProcessAsyncWithCallbackAndCancellationToken(progress, cts.Token);
+            if (cts.IsCancellationRequested)
+            {
+                cts.Dispose();
+                cts = new CancellationTokenSource();
+            }
+
+            PrintResults(results);
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+
+            TextBlockResult.Text += $"Total execution time: { elapsedMs }";
         }
     }
 }
